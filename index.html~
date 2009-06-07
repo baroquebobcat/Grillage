@@ -7,10 +7,19 @@ var dude = {
   coords: {
     x:100,
     y:100 
-  }
+  },
+  width:55
 }
 var delta = 10;
-var size = {x:300,y:300}
+var screen_size = {x:300,y:300}
+
+var map = {
+  screen_coords: {
+  x:0,
+  y:0
+  }
+}
+
 
 function context(){
  var canvas = document.getElementById("canvas");
@@ -22,42 +31,53 @@ function init(){
 
 }
 
+function clear(ctx){
+  var ctx = context();
+  ctx.clearRect(0,0,screen_size.x,screen_size.y);
+}
+
 function draw(){
   var ctx = context();
-  ctx.clearRect(0,0,300,300);
+  clear(ctx);
+  
   draw_bg(ctx)
   draw_dude(ctx)
 }
+
 function draw_bg(ctx,coords) {
  coords = coords||{x:1,y:1};
  ctx.fillStyle = "rgb(200,0,0)";
- ctx.fillRect (10*coords.y, 10, 55, 50);
- ctx.fillRect (100*coords.x, 10, 55, 50);
+ ctx.fillRect (10-map.screen_coords.x, 10, 55, 50);
+ ctx.fillRect (100-map.screen_coords.x, 10, 55, 50);
 }
+
 function draw_dude(ctx,coords){
- coords = coords||{x:100,y:100};
  ctx.fillStyle = "rgba(0, 0, 200, 0.5)";
- ctx.fillRect (dude.coords.x, dude.coords.y, 55, 50);
+ ctx.fillRect (dude.coords.x-map.screen_coords.x, dude.coords.y, 55, 50);
 }
 
 Event.observe(window,'keypress',function(e){
   
   switch(e.keyCode){
   case Event.KEY_UP:
-    $('debug').update("up");
+    $('debug_input').update("up");
     break;
   case Event.KEY_DOWN:
-    $('debug').update("down");
+    $('debug_input').update("down");
     break;
   case Event.KEY_LEFT:
-    $('debug').update("left");
+    $('debug_input').update("left");
     dude.coords.x-=delta;
     break;
   case Event.KEY_RIGHT:
-    $('debug').update("right");
+    $('debug_input').update("right");
     dude.coords.x+=delta;
+    
     break;
   }
+  if (dude.coords.x > map.screen_coords.x + screen_size.x - dude.width) map.screen_coords.x +=delta;
+  if (dude.coords.x < map.screen_coords.x + dude.width) map.screen_coords.x +=delta;
+  $('screen_coords').update("x: "+map.screen_coords.x+"y: "+map.screen_coords.y)
   draw()
 
 })
@@ -65,7 +85,10 @@ Event.observe(window,'keypress',function(e){
  </head>
  <body onload="init();draw()">
    <canvas id="canvas" width="300" height="300"></canvas>
-   <div id="debug">asdf</div>
+   <div id="debug">
+     <div id="debug_input">None</div>
+     <b>Screen Coords</b> <span id=screen_coords></span>
+   </div>
  </body>
 </html>
 

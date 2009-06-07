@@ -3,9 +3,19 @@
   <script src="prototype.js"></script>
   <script type="application/x-javascript">
   //starting from https://developer.mozilla.org/en/drawing_graphics_with_canvas
-function draw(){
+function context(){
  var canvas = document.getElementById("canvas");
- var ctx = canvas.getContext("2d");
+ return canvas.getContext("2d");
+
+}
+
+function init(){
+
+}
+
+function draw(){
+  var ctx = context();
+  ctx.clearRect(0,0,300,300);
   draw_bg(ctx)
   draw_dude(ctx)
 }
@@ -18,7 +28,7 @@ function draw_bg(ctx,coords) {
 function draw_dude(ctx,coords){
  coords = coords||{x:100,y:100};
  ctx.fillStyle = "rgba(0, 0, 200, 0.5)";
- ctx.fillRect (coords.x, coords.y, 55, 50);
+ ctx.fillRect (dude.coords.x, dude.coords.y, 55, 50);
 }
 var dude = {
   coords: {
@@ -38,6 +48,7 @@ Event.observe(window,'keypress',function(e){
     break;
   case Event.KEY_LEFT:
     $('debug').update("left");
+    dude.coords.x-=delta;
     break;
   case Event.KEY_RIGHT:
     $('debug').update("right");
@@ -49,7 +60,7 @@ Event.observe(window,'keypress',function(e){
 })
   </script>
  </head>
- <body onload="draw()">
+ <body onload="init();draw()">
    <canvas id="canvas" width="300" height="300"></canvas>
    <div id="debug">asdf</div>
  </body>

@@ -2,20 +2,56 @@
  <head>
   <script src="prototype.js"></script>
   <script type="application/x-javascript">
-function draw() {
+  //starting from https://developer.mozilla.org/en/drawing_graphics_with_canvas
+function draw(){
  var canvas = document.getElementById("canvas");
  var ctx = canvas.getContext("2d");
-
- ctx.fillStyle = "rgb(200,0,0)";
- ctx.fillRect (10, 10, 55, 50);
-
- ctx.fillStyle = "rgba(0, 0, 200, 0.5)";
- ctx.fillRect (30, 30, 55, 50);
+  draw_bg(ctx)
+  draw_dude(ctx)
 }
+function draw_bg(ctx,coords) {
+ coords = coords||{x:1,y:1};
+ ctx.fillStyle = "rgb(200,0,0)";
+ ctx.fillRect (10*coords.y, 10, 55, 50);
+ ctx.fillRect (100*coords.x, 10, 55, 50);
+}
+function draw_dude(ctx,coords){
+ coords = coords||{x:100,y:100};
+ ctx.fillStyle = "rgba(0, 0, 200, 0.5)";
+ ctx.fillRect (coords.x, coords.y, 55, 50);
+}
+var dude = {
+  coords: {
+    x:100,
+    y:100 
+  }
+}
+var delta = 10;
+Event.observe(window,'keypress',function(e){
+  
+  switch(e.keyCode){
+  case Event.KEY_UP:
+    $('debug').update("up");
+    break;
+  case Event.KEY_DOWN:
+    $('debug').update("down");
+    break;
+  case Event.KEY_LEFT:
+    $('debug').update("left");
+    break;
+  case Event.KEY_RIGHT:
+    $('debug').update("right");
+    dude.coords.x+=delta;
+    break;
+  }
+  draw()
+
+})
   </script>
  </head>
  <body onload="draw()">
    <canvas id="canvas" width="300" height="300"></canvas>
+   <div id="debug">asdf</div>
  </body>
 </html>
 

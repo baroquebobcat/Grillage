@@ -10,7 +10,7 @@ var dude = {
   }
 }
 var delta = 10;
-
+var size = {x:300,y:300}
 
 function context(){
  var canvas = document.getElementById("canvas");
@@ -21,10 +21,13 @@ function context(){
 function init(){
 
 }
-
+function clear(ctx){
+  var ctx = context();
+  ctx.clearRect(0,0,size.x,size.y);
+}
 function draw(){
   var ctx = context();
-  ctx.clearRect(0,0,300,300);
+  clear(ctx)
   draw_bg(ctx)
   draw_dude(ctx)
 }

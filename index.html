@@ -17,7 +17,8 @@ var map = {
   screen_coords: {
   x:0,
   y:0
-  }
+  },
+  width: 1000
 }
 
 
@@ -67,11 +68,12 @@ Event.observe(window,'keypress',function(e){
     break;
   case Event.KEY_LEFT:
     $('debug_input').update("left");
-    dude.coords.x-=delta;
+    if (dude.coords.x-delta + dude.width >= 0) dude.coords.x-=delta;
     break;
   case Event.KEY_RIGHT:
     $('debug_input').update("right");
-    dude.coords.x+=delta;
+    
+    if (dude.coords.x+delta - dude.width < map.width) dude.coords.x+=delta;
     
     break;
   }

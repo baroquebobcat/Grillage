@@ -80,9 +80,16 @@ Event.observe(window,'keypress',function(e){
   if (dude.coords.x > map.screen_coords.x + screen_size.x - dude.width) map.screen_coords.x +=delta;
   if (dude.coords.x < map.screen_coords.x + dude.width) map.screen_coords.x -=delta;
   $('screen_coords').update("x: "+map.screen_coords.x+"y: "+map.screen_coords.y)
-  draw()
-
 })
+
+var jump = function(){
+  
+}
+
+var drawLoop = function(){draw();
+setTimeout("drawLoop()", 10);
+}
+
   </script>
  </head>
  <body onload="init();draw()">
@@ -91,6 +98,7 @@ Event.observe(window,'keypress',function(e){
      <div id="debug_input">None</div>
      <b>Screen Coords</b> <span id=screen_coords></span>
    </div>
+   <script>drawLoop();</script>
  </body>
 </html>
 

@@ -41,19 +41,21 @@ function clear(ctx){
 function draw(){
   var ctx = context();
   clear(ctx);
-  
   draw_bg(ctx)
   draw_dude(ctx)
 }
 
-function draw_bg(ctx,coords) {
- coords = coords||{x:1,y:1};
+function draw_bg(ctx) {
+ for(var i=1;i<10;i++)
+ {
  ctx.fillStyle = "rgb(200,0,0)";
- ctx.fillRect (10-map.screen_coords.x, 10, 55, 50);
- ctx.fillRect (100-map.screen_coords.x, 10, 55, 50);
+ ctx.fillRect (100*i-map.screen_coords.x, 10, 55, 50);
+ }
+  ctx.fillStyle = "rgb(0,200,0)";
+  ctx.fillRect (0, map.height/2 +10, map.width,map.height/2 );
 }
 
-function draw_dude(ctx,coords){
+function draw_dude(ctx){
  ctx.fillStyle = "rgba(0, 0, 200, 0.5)";
  ctx.fillRect (dude.coords.x-map.screen_coords.x, dude.coords.y, 55, 50);
 }
@@ -62,17 +64,18 @@ Event.observe(window,'keypress',function(e){
   
   switch(e.keyCode){
   case Event.KEY_UP:
-    $('debug_input').update("up");
+    $('key_press').update("up");
+    
     break;
   case Event.KEY_DOWN:
-    $('debug_input').update("down");
+    $('key_press').update("down");
     break;
   case Event.KEY_LEFT:
-    $('debug_input').update("left");
+    $('key_press').update("left");
     if (dude.coords.x-delta + dude.width >= 0) dude.coords.x-=delta;
     break;
   case Event.KEY_RIGHT:
-    $('debug_input').update("right");
+    $('key_press').update("right");
     
     if (dude.coords.x+delta - dude.width < map.width) dude.coords.x+=delta;
     
@@ -94,9 +97,9 @@ setTimeout("drawLoop()", 10);
   </script>
  </head>
  <body onload="init();draw()">
-   <canvas id="canvas" width="300" height="300"></canvas>
+   <canvas id="canvas" width="300" height="300" style="border:black 1px solid"></canvas>
    <div id="debug">
-     <div id="debug_input">None</div>
+     <div id="key_press">None</div>
      <b>Screen Coords</b> <span id=screen_coords></span>
    </div>
    <script>drawLoop();</script>

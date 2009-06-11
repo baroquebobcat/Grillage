@@ -61,8 +61,8 @@ function draw_dude(ctx){
 }
 
 Event.observe(window,'keypress',function(e){
-  
-  switch(e.keyCode){
+  switch(e.keyCode != 0 ? e.keyCode : String.fromCharCode(e.which)){
+  case ' ':
   case Event.KEY_UP:
     $('key_press').update("up");
     

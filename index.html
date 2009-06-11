@@ -65,7 +65,7 @@ Event.observe(window,'keypress',function(e){
   case ' ':
   case Event.KEY_UP:
     $('key_press').update("up");
-    
+    jump();
     break;
   case Event.KEY_DOWN:
     $('key_press').update("down");
@@ -78,16 +78,33 @@ Event.observe(window,'keypress',function(e){
     $('key_press').update("right");
     
     if (dude.coords.x+delta - dude.width < map.width) dude.coords.x+=delta;
-    
     break;
+    default:
+        $('key_press').update(e.keyCode);
+        break;
   }
+//          $('key_press').update(event.keyCode);
   if (dude.coords.x > map.screen_coords.x + screen_size.x - dude.width) map.screen_coords.x +=delta;
   if (dude.coords.x < map.screen_coords.x + dude.width) map.screen_coords.x -=delta;
   $('screen_coords').update("x: "+map.screen_coords.x+"y: "+map.screen_coords.y)
 })
 
-var jump = function(){
-  
+
+
+
+
+
+var jump = function(t){
+//  alert('jump')
+  if(t == null) t = 0;
+
+var period = 10;//ms
+var rate = 0.07;//per period
+var gravity = 10;
+  if(dude.coords.y >100) {dude.coords.y =100; return;}
+//  if(dude.coords.y <=0) {dude.coords.y =0; return;}
+  dude.coords.y = dude.coords.y - delta + gravity*t^2;
+  setTimeout("jump("+(t+rate)+")",period);
 }
 
 var drawLoop = function(){draw();

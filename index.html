@@ -59,7 +59,7 @@ function draw_dude(ctx){
  ctx.fillStyle = "rgba(0, 0, 200, 0.5)";
  ctx.fillRect (dude.coords.x-map.screen_coords.x, dude.coords.y, 55, 50);
 }
-
+/*
 Event.observe(window,'keypress',function(e){
   switch(e.keyCode != 0 ? e.keyCode : String.fromCharCode(e.which)){
   case ' ':
@@ -86,10 +86,10 @@ Event.observe(window,'keypress',function(e){
 //          $('key_press').update(event.keyCode);
   if (dude.coords.x > map.screen_coords.x + screen_size.x - dude.width) map.screen_coords.x +=delta;
   if (dude.coords.x < map.screen_coords.x + dude.width) map.screen_coords.x -=delta;
-  $('screen_coords').update("x: "+map.screen_coords.x+"y: "+map.screen_coords.y)
+  $('screen_coords').update("x: "+map.screen_coords.x+"y: "+map.screen_coords.y);
 })
 
-
+*/
 
 
 
@@ -109,15 +109,76 @@ var gravity = 10;
 
 var drawLoop = function(){draw();
 setTimeout("drawLoop()", 10);
-}
+};
 
+
+Event.KEY_SPACE = 32;
+Event.observe(window,"keyup",function(e){
+  switch(e.keyCode != 0 ? e.keyCode : String.fromCharCode(e.which)){
+  case Event.KEY_SPACE:
+  case Event.KEY_UP:
+    $('key_press_up').removeClassName("pressed");
+    break;
+  case Event.KEY_DOWN:
+    $('key_press_down').removeClassName("pressed");
+    break;
+  case Event.KEY_LEFT:
+    $('key_press_left').removeClassName("pressed");
+    break;
+  case Event.KEY_RIGHT:
+    $('key_press_right').removeClassName("pressed");
+    break;
+    default:
+        $('key_press_other').removeClassName("pressed");
+        break;
+  }  
+})
+
+
+Event.observe(window,"keydown",function(e){
+  var dir = null;
+  switch(e.keyCode != 0 ? e.keyCode : e.which){
+  case Event.KEY_SPACE:
+  case Event.KEY_UP:
+    dir = "up"
+    jump();
+    break;
+  case Event.KEY_DOWN:
+    dir = "down"
+    break;
+  case Event.KEY_LEFT:
+    dir="left"
+    if (dude.coords.x-delta + dude.width >= 0) dude.coords.x-=delta;
+    break;
+  case Event.KEY_RIGHT:
+    dir = "right"
+    if (dude.coords.x+delta - dude.width < map.width) dude.coords.x+=delta;
+    break;
+    default:
+        dir = "other";
+        $('key_press_other').update(e.keyCode != 0 ?String.fromCharCode(e.keyCode) : String.fromCharCode(e.which))
+        break;
+  }
+  $('key_press_'+dir).addClassName("pressed");
+  if (dude.coords.x > map.screen_coords.x + screen_size.x - dude.width) map.screen_coords.x +=delta;
+  if (dude.coords.x < map.screen_coords.x + dude.width) map.screen_coords.x -=delta;
+  $('screen_coords').update("x: "+map.screen_coords.x+"y: "+map.screen_coords.y);
+})
   </script>
+  <style>
+  .pressed{background-color:blue}
+  </style>
  </head>
  <body onload="init();draw()">
    <canvas id="canvas" width="300" height="300" style="border:black 1px solid"></canvas>
-   <div id="debug">
+   <div id="debug" style="width:100px">
      <div id="key_press">None</div>
      <b>Screen Coords</b> <span id=screen_coords></span>
+     <div id="key_press_up">Up</div>
+     <div id="key_press_down">Down</div>
+     <div id="key_press_left">Left</div>
+     <div id="key_press_right">Right</div>
+     <div id="key_press_other">Other</div>
    </div>
    <script>drawLoop();</script>
  </body>

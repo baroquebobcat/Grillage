@@ -10,7 +10,7 @@ var dude = {
   },
   width:55
 }
-var delta = 10;
+var delta = 5;
 var screen_size = {x:300,y:300}
 
 var map = {
@@ -59,79 +59,66 @@ function draw_dude(ctx){
  ctx.fillStyle = "rgba(0, 0, 200, 0.5)";
  ctx.fillRect (dude.coords.x-map.screen_coords.x, dude.coords.y, 55, 50);
 }
-/*
-Event.observe(window,'keypress',function(e){
-  switch(e.keyCode != 0 ? e.keyCode : String.fromCharCode(e.which)){
-  case ' ':
-  case Event.KEY_UP:
-    $('key_press').update("up");
-    jump();
-    break;
-  case Event.KEY_DOWN:
-    $('key_press').update("down");
-    break;
-  case Event.KEY_LEFT:
-    $('key_press').update("left");
-    if (dude.coords.x-delta + dude.width >= 0) dude.coords.x-=delta;
-    break;
-  case Event.KEY_RIGHT:
-    $('key_press').update("right");
-    
-    if (dude.coords.x+delta - dude.width < map.width) dude.coords.x+=delta;
-    break;
-    default:
-        $('key_press').update(e.keyCode);
-        break;
-  }
-//          $('key_press').update(event.keyCode);
-  if (dude.coords.x > map.screen_coords.x + screen_size.x - dude.width) map.screen_coords.x +=delta;
-  if (dude.coords.x < map.screen_coords.x + dude.width) map.screen_coords.x -=delta;
-  $('screen_coords').update("x: "+map.screen_coords.x+"y: "+map.screen_coords.y);
-})
 
-*/
+function move_dude(){
+    //left right
+    if (movement.left && dude.coords.x-delta + dude.width >= 0) dude.coords.x-=delta;
+    if (movement.right && dude.coords.x+delta - dude.width < map.width) dude.coords.x+=delta;
+    //adjust screen position
+    if (dude.coords.x > map.screen_coords.x + screen_size.x - dude.width) map.screen_coords.x +=delta;
+    if (dude.coords.x < map.screen_coords.x + dude.width) map.screen_coords.x -=delta;
 
-
-
+}
 
 var jump = function(t){
 //  alert('jump')
   if(t == null) t = 0;
-
-var period = 10;//ms
-var rate = 0.07;//per period
-var gravity = 10;
+  var period = 10;//ms
+  var rate = 0.07;//per period
+  var gravity = 10;
   if(dude.coords.y >100) {dude.coords.y =100; return;}
 //  if(dude.coords.y <=0) {dude.coords.y =0; return;}
   dude.coords.y = dude.coords.y - delta + gravity*t^2;
   setTimeout("jump("+(t+rate)+")",period);
 }
 
-var drawLoop = function(){draw();
-setTimeout("drawLoop()", 10);
+var mainLoop = function(){
+  move_dude();
+  draw();
+  setTimeout("mainLoop()", 10);
 };
 
-
+var movement = {
+  left:false,
+  right:false,
+  up:false,
+  down:false,
+  other:false
+  }
+  
 Event.KEY_SPACE = 32;
 Event.observe(window,"keyup",function(e){
+  var dir = null;
   switch(e.keyCode != 0 ? e.keyCode : String.fromCharCode(e.which)){
   case Event.KEY_SPACE:
   case Event.KEY_UP:
-    $('key_press_up').removeClassName("pressed");
+    dir = "up"
     break;
   case Event.KEY_DOWN:
-    $('key_press_down').removeClassName("pressed");
+    dir = 'down';
     break;
   case Event.KEY_LEFT:
-    $('key_press_left').removeClassName("pressed");
+    dir = 'left'
     break;
   case Event.KEY_RIGHT:
-    $('key_press_right').removeClassName("pressed");
+    dir = 'right';
     break;
-    default:
-        $('key_press_other').removeClassName("pressed");
-        break;
-  }  
+  default:
+    dir = 'other';
+    break;
+  }
+  movement[dir]=false
+  $('key_press_'+dir).removeClassName("pressed");
 })
 
 
@@ -148,20 +135,18 @@ Event.observe(window,"keydown",function(e){
     break;
   case Event.KEY_LEFT:
     dir="left"
-    if (dude.coords.x-delta + dude.width >= 0) dude.coords.x-=delta;
     break;
   case Event.KEY_RIGHT:
     dir = "right"
-    if (dude.coords.x+delta - dude.width < map.width) dude.coords.x+=delta;
     break;
-    default:
-        dir = "other";
-        $('key_press_other').update(e.keyCode != 0 ?String.fromCharCode(e.keyCode) : String.fromCharCode(e.which))
-        break;
+  default:
+      dir = "other";
+      $('key_press_other').update(e.keyCode != 0 ?String.fromCharCode(e.keyCode) : String.fromCharCode(e.which))
+      break;
   }
+  movement[dir]=true;
+  
   $('key_press_'+dir).addClassName("pressed");
-  if (dude.coords.x > map.screen_coords.x + screen_size.x - dude.width) map.screen_coords.x +=delta;
-  if (dude.coords.x < map.screen_coords.x + dude.width) map.screen_coords.x -=delta;
   $('screen_coords').update("x: "+map.screen_coords.x+"y: "+map.screen_coords.y);
 })
   </script>
@@ -180,7 +165,7 @@ Event.observe(window,"keydown",function(e){
      <div id="key_press_right">Right</div>
      <div id="key_press_other">Other</div>
    </div>
-   <script>drawLoop();</script>
+   <script>mainLoop();</script>
  </body>
 </html>
 

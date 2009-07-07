@@ -19,6 +19,10 @@ Grillage =
   };
 
 
+
+var delta = 5;
+var screen_size = {x:300,y:300}
+
 function move_dude(){
     //left right
     if (dude.movement.left && dude.coords.x-delta + dude.width >= 0) dude.coords.x-=delta;
@@ -149,9 +153,17 @@ Event.observe(window,"keydown",function(e){
   $('screen_coords').update("x: "+map.screen_coords.x+"y: "+map.screen_coords.y);
 })
   }
+  
+  
+  set_debug = function(){
+    $("canvas").observe('click',function(event){
+      $('mouse_coords').update('x: '+event.pointerX()+',  y:'+event.pointerY())
+    })
+  }
 
   return {
   start: function(options){
+    set_debug()
     set_listeners()
     set_screen()
     this.draw();

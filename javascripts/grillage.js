@@ -81,6 +81,13 @@ var jump = function(t){
    ctx.fillRect (dude.coords.x-map.screen_coords.x, dude.coords.y, 55, 50);
   }
 
+  function draw_tiles(ctx){
+    map.tiles.each(function(tile){
+      ctx.fillStyle = 'rgb(200,40,240);'
+      ctx.fillRect(tile.coords.x-map.screen_coords.x,tile.coords.y,tile.width,tile.height)
+    })
+  }
+
   var screen = null;
   function set_screen(){
     screen = {
@@ -91,6 +98,7 @@ var jump = function(t){
       draw: function (){
         clear(this.context);
         draw_bg(this.context)
+        draw_tiles(this.context)
         draw_dude(this.context)
       },
       dude:dude

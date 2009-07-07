@@ -18,7 +18,15 @@ var map = {
   y:0
   },
   width: 1000,
-  height:300
+  height:300,
+  tiles: [
+    {
+      type:'hard',
+      coords: {x:225,y:100},
+      width: 500,
+      height:50
+    }
+  ]
 }
 
 

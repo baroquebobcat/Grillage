@@ -14,6 +14,10 @@ Grillage =
     
   var mainLoop = function(){
     move_dude();
+    var dir = null
+    if (dude.movement.left)dir="left"
+    if (dude.movement.right)dir="right"
+    dude.coords = collision_adjustment(dude.coords,dude.width,dir)
     Grillage.draw();
     setTimeout("Grillage.mainLoop()", 10);
   };
@@ -24,13 +28,16 @@ var delta = 5;
 var screen_size = {x:300,y:300}
 
 function move_dude(){
+  //movement
     //left right
     if (dude.movement.left && dude.coords.x-delta + dude.width >= 0) dude.coords.x-=delta;
     if (dude.movement.right && dude.coords.x+delta - dude.width < map.width) dude.coords.x+=delta;
-    //adjust screen position
+
+  //scroll screen position
     if (dude.coords.x > map.screen_coords.x + screen_size.x - dude.width) map.screen_coords.x +=delta;
     if (dude.coords.x < map.screen_coords.x + dude.width) map.screen_coords.x -=delta;
 
+   
 }
 
 var dude = {
@@ -50,18 +57,32 @@ var dude = {
 }
 
 
-var jump = function(t){
-//  alert('jump')
-  if(t == null) t = 0;
-  var period = 10;//ms
-  var rate = 0.07;//per period
-  var gravity = 10;
-  if(dude.coords.y >100) {dude.coords.y =100; return;}
-//  if(dude.coords.y <=0) {dude.coords.y =0; return;}
-  dude.coords.y = dude.coords.y - delta + gravity*t^2;
-  setTimeout("Grillage.jump("+(t+rate)+")",period);
-}
+  var jump = function(t){
+  //  alert('jump')
+    if(t == null) t = 0;
+    var period = 10;//ms
+    var rate = 0.07;//per period
+    var gravity = 10;
+    if(dude.coords.y >100) {dude.coords.y =100; return;}
+  //  if(dude.coords.y <=0) {dude.coords.y =0; return;}
+    dude.coords.y = dude.coords.y - delta + gravity*t^2;
+    setTimeout("Grillage.jump("+(t+rate)+")",period);
+  }
 
+  function collision_adjustment(coords,width,dir){
+    map.tiles.each(function(tile){
+      if (coords.x + width > tile.coords.x && coords.x < tile.coords.x + tile.width)
+        switch(dir){
+          case "left":
+            coords.x =  tile.coords.x + tile.width;
+          case "right":
+          default:
+            coords.x =  tile.coords.x - width;
+            console.log('dunno')
+        }
+    })
+    return coords;
+  }
 
   function clear(ctx){
     ctx.clearRect(0,0,screen_size.x,screen_size.y);

@@ -61,7 +61,7 @@ var dude = {
   //  alert('jump')
     if(t == null) t = 0;
     var period = 10;//ms
-    var rate = 0.07;//per period
+    var rate = 0.02;//per period
     var gravity = 10;
     if(dude.coords.y >100) {dude.coords.y =100; return;}
   //  if(dude.coords.y <=0) {dude.coords.y =0; return;}

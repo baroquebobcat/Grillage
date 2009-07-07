@@ -17,7 +17,7 @@ Grillage =
     var dir = null
     if (dude.movement.left)dir="left"
     if (dude.movement.right)dir="right"
-    dude.coords = collision_adjustment(dude.coords,dude.width,dir)
+    dude.coords = collision_adjustment(dude.coords,dude.width,dude.height,dir)
     Grillage.draw();
     setTimeout("Grillage.mainLoop()", 10);
   };
@@ -46,6 +46,7 @@ var dude = {
     y:100 
   },
   width:55,
+  height:50,
   movement: {
     left:false,
     right:false,
@@ -69,9 +70,34 @@ var dude = {
     setTimeout("Grillage.jump("+(t+rate)+")",period);
   }
 
-  function collision_adjustment(coords,width,dir){
+  function collision_adjustment(coords,width,height,dir){
+    $('blocked').removeClassName('pressed')
+    var bottom = coords.y + height;
+    
     map.tiles.each(function(tile){
-      if (coords.x + width > tile.coords.x && coords.x < tile.coords.x + tile.width)
+      var tile_bottom = tile.coords.y + tile.height
+   
+    if (coords.x + width > tile.coords.x &&
+          coords.x < tile.coords.x + tile.width){
+    console.log( bottom - tile.coords.y )
+    console.log( bottom - tile_bottom)
+    console.log( coords.y -tile.coords.y)
+    console.log( coords.y - tile_bottom)
+    }
+      if (coords.x + width > tile.coords.x &&
+          coords.x < tile.coords.x + tile.width &&
+          (
+            bottom == tile_bottom && coords.y==tile.coords.y ||
+            coords.y < tile.coords.y && bottom > tile_bottom ||
+            coords.y > tile.coords.y && bottom == tile_bottom
+          
+//            bottom > tile.y || bottom < tile_bottom &&
+  //          coords.y >=tile.coords.y || coords.y < tile_bottom
+          )
+
+          )
+      {
+        $('blocked').addClassName('pressed')
         switch(dir){
           case "left":
             coords.x =  tile.coords.x + tile.width;
@@ -80,6 +106,7 @@ var dude = {
             coords.x =  tile.coords.x - width;
             console.log('dunno')
         }
+      }
     })
     return coords;
   }
@@ -99,7 +126,7 @@ var dude = {
 
   function draw_dude(ctx){
    ctx.fillStyle = "rgba(0, 0, 200, 0.5)";
-   ctx.fillRect (dude.coords.x-map.screen_coords.x, dude.coords.y, 55, 50);
+   ctx.fillRect (dude.coords.x-map.screen_coords.x, dude.coords.y, dude.width, dude.height);
   }
 
   function draw_tiles(ctx){

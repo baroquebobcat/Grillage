@@ -15,9 +15,8 @@ Grillage =
   var mainLoop = function(){
     move_dude();
     var dir = null
-    if (dude.movement.left)dir="left"
-    if (dude.movement.right)dir="right"
-    dude.coords = collision_adjustment(dude.coords,dude.width,dude.height,dir)
+
+
     Grillage.draw();
     setTimeout("Grillage.mainLoop()", 10);
   };
@@ -29,13 +28,36 @@ var screen_size = {x:300,y:300}
 
 function move_dude(){
   //movement
+  
+    if(dude.movement.left) dude.velocity.x = -1
+    if(dude.movement.right) dude.velocity.x = 1
+    if(!dude.movement.left && !dude.movement.right) dude.velocity.x = 0;
+    
     //left right
-    if (dude.movement.left && dude.coords.x-delta + dude.width >= 0) dude.coords.x-=delta;
-    if (dude.movement.right && dude.coords.x+delta - dude.width < map.width) dude.coords.x+=delta;
+    var new_coords = {x:0,y:0}
+    new_coords.x = dude.coords.x + dude.velocity.x*delta;
+    new_coords.y = dude.coords.y;
+    
+    //this is a stupid check
+    if (dude.velocity.y == 0) dude.jumping = false 
+    
+    if (dude.movement.up && !dude.jumping) {
+      dude.velocity.y = -1;
+      dude.jumping = true;
+    }
+    dude.velocity.y += 0.03;
+    
+    if(dude.coords.y > map.ground) {
+      dude.coords.y = map.ground;
+      dude.velocity.y = 0;
+    }
+    
+    new_coords.y = dude.coords.y + dude.velocity.y*delta;
+    dude.coords = collision_adjustment(dude,new_coords) 
 
-  //scroll screen position
-    if (dude.coords.x > map.screen_coords.x + screen_size.x - dude.width) map.screen_coords.x +=delta;
-    if (dude.coords.x < map.screen_coords.x + dude.width) map.screen_coords.x -=delta;
+  //scroll screen position -- leave a half a dude of space
+    if (dude.coords.x > map.screen_coords.x + screen_size.x - 1.5 * dude.width) map.screen_coords.x +=delta;
+    if (dude.coords.x < map.screen_coords.x + 0.5 * dude.width) map.screen_coords.x -=delta;
 
    
 }
@@ -45,69 +67,70 @@ var dude = {
     x:100,
     y:100 
   },
+  velocity:{
+    x:0,
+    y:0
+  },
+  jumping:false,
   width:55,
   height:50,
   movement: {
     left:false,
     right:false,
     up:false,
-    jumping:false,
     down:false,
     other:false
   }
 }
 
-
-  var jump = function(t){
-  //  alert('jump')
-    if(t == null) t = 0;
-    var period = 10;//ms
-    var rate = 0.02;//per period
-    var gravity = 10;
-    if(dude.coords.y >100) {dude.coords.y =100; return;}
-  //  if(dude.coords.y <=0) {dude.coords.y =0; return;}
-    dude.coords.y = dude.coords.y - delta + gravity*t^2;
-    setTimeout("Grillage.jump("+(t+rate)+")",period);
-  }
-
-  function collision_adjustment(coords,width,height,dir){
-    $('blocked').removeClassName('pressed')
-    var bottom = coords.y + height;
+  function collision_adjustment(dude,new_coords){
+    $('blocked_hori').removeClassName('pressed')
+    $('blocked_vert').removeClassName('pressed')
+    var bottom = new_coords.y + dude.height;
+    
+    var coords = Object.clone(new_coords)
     
     map.tiles.each(function(tile){
       var tile_bottom = tile.coords.y + tile.height
    
-    if (coords.x + width > tile.coords.x &&
-          coords.x < tile.coords.x + tile.width){
-    console.log( bottom - tile.coords.y )
-    console.log( bottom - tile_bottom)
-    console.log( coords.y -tile.coords.y)
-    console.log( coords.y - tile_bottom)
-    }
-      if (coords.x + width > tile.coords.x &&
-          coords.x < tile.coords.x + tile.width &&
-          (
-            bottom == tile_bottom && coords.y==tile.coords.y ||
-            coords.y < tile.coords.y && bottom > tile_bottom ||
-            coords.y > tile.coords.y && bottom == tile_bottom
+   
+   
+   //for x
+     // if old y is between y1,y2 check and deal
+     if (dude.coords.y + dude.height > tile.coords.y && dude.coords.y < tile_bottom) {
+       if (new_coords.x + dude.width > tile.coords.x &&
+          new_coords.x < tile.coords.x + tile.width){
           
-//            bottom > tile.y || bottom < tile_bottom &&
-  //          coords.y >=tile.coords.y || coords.y < tile_bottom
-          )
-
-          )
-      {
-        $('blocked').addClassName('pressed')
-        switch(dir){
-          case "left":
-            coords.x =  tile.coords.x + tile.width;
-          case "right":
-          default:
-            coords.x =  tile.coords.x - width;
-            console.log('dunno')
-        }
-      }
+          dude.velocity.x=0
+          
+          coords.x = dude.coords.x;//lazy
+          $('blocked_hori').addClassName('pressed')
+       }
+     }
+   //for y
+     // if old x is between x1,x2 check and deal
+   
+     if (dude.coords.x  + dude.width> tile.coords.x && dude.coords.x < tile.coords.x + tile.width) {
+       if (new_coords.y + dude.height > tile.coords.y && new_coords.y < tile_bottom){
+          
+          dude.velocity.y=0
+          
+          dude.jumping=false;
+          
+          coords.y = dude.coords.y;//lazy
+          $('blocked_vert').addClassName('pressed')
+       }
+     }
     })
+    if (new_coords.x+dude.width > map.width || new_coords.x < 0) {
+      coords.x = dude.coords.x;
+      dude.velocity.x=0;
+    }
+    
+    if (new_coords.y+dude.height > map.height || new_coords.y < 0) {
+      coords.y = dude.coords.y;
+      dude.velocity.y=0;
+    }
     return coords;
   }
 
@@ -187,7 +210,8 @@ Event.observe(window,"keydown",function(e){
   case Event.KEY_SPACE:
   case Event.KEY_UP:
     dir = "up"
-    if(!dude.movement.jumping) jump();
+    //if(!dude.movement.jumping) jump();
+    
     break;
   case Event.KEY_DOWN:
     dir = "down"
@@ -228,7 +252,7 @@ Event.observe(window,"keydown",function(e){
   draw: function(){
     screen.draw()
   },
-  mainLoop:mainLoop,
-  jump:jump
+  mainLoop:mainLoop
+ // jump:jump
   }
 })();

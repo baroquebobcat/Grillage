@@ -19,6 +19,7 @@ var map = {
   },
   width: 1000,
   height:300,
+  ground:100,
   tiles: [
     {
       type:'hard',

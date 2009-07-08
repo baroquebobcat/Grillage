@@ -47,14 +47,14 @@ function move_dude(){
     }
     dude.velocity.y += 0.03;
     
-    if(dude.coords.y > map.ground) {
-      dude.coords.y = map.ground;
+    if(dude.coords.y +dude.height > map.ground) {
+      dude.coords.y = map.ground - dude.height;
       dude.velocity.y = 0;
     }
     
     new_coords.y = dude.coords.y + dude.velocity.y*delta;
     dude.coords = collision_adjustment(dude,new_coords) 
-
+    $('dude_coords').update("x: "+dude.coords.x+"<br>y:"+dude.coords.y)
   //scroll screen position -- leave a half a dude of space
     if (dude.coords.x > map.screen_coords.x + screen_size.x - 1.5 * dude.width) map.screen_coords.x +=delta;
     if (dude.coords.x < map.screen_coords.x + 0.5 * dude.width) map.screen_coords.x -=delta;

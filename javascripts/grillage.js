@@ -26,7 +26,7 @@ Grillage =
     move_screen();
     var dir = null
     Grillage.draw();
-    setTimeout("Grillage.mainLoop()", 10);
+    setTimeout("Grillage.mainLoop()", tic);
   };
 
 var screen_coords = function(coords){
@@ -35,9 +35,9 @@ var screen_coords = function(coords){
     y: screen.height - (coords.y -screen.coords.y)
   };
 }
-
+var epsilon = 1;
 var delta = 5;
-
+var tic = 20;
 function move_dude(){
   //movement
   
@@ -58,12 +58,7 @@ function move_dude(){
       dude.jumping = true;
     }
     dude.velocity.y -= 0.03;
-    
-    if(dude.coords.y  < map.ground) {
-      dude.coords.y = map.ground - dude.height;
-      dude.velocity.y = 0;
-    }
-    
+     
     new_coords.y = dude.coords.y + dude.velocity.y*delta;
     dude.coords = collision_adjustment(dude,new_coords)   
    
@@ -72,9 +67,15 @@ function move_dude(){
 function move_screen(){
   //scroll screen position -- leave a half a dude of space
   var coords = screen_coords(dude.coords)
-  if (coords.x > screen.coords.x + screen.width - 1.5 * dude.width) screen.coords.x +=delta;
-  if (coords.x < screen.coords.x + 0.5 * dude.width) screen.coords.x -=delta;
+  if (coords.x > screen.width - 1.5 * dude.width)
+   screen.coords.x +=  delta;
+  if ( coords.x < 0.5 * dude.width)
+  screen.coords.x -=  delta;
 
+  if (coords.y > screen.height - 0.5 * dude.height)
+   screen.coords.y -=  delta;
+  if ( coords.y < 0)
+    screen.coords.y +=  delta;
 }
 
   var dude = {
@@ -109,7 +110,7 @@ function move_screen(){
       var tile_top = tile.coords.y + tile.height
    //for x
      // if old y is between y1,y2 check and deal
-     if (dude.coords.y + dude.height > tile.coords.y && dude.coords.y < tile_top) {
+     if (dude.coords.y + dude.height > tile.coords.y + epsilon && dude.coords.y < tile_top - epsilon) {
        if (new_coords.x + dude.width > tile.coords.x &&
           new_coords.x < tile.coords.x + tile.width){
           
@@ -122,8 +123,8 @@ function move_screen(){
    //for y
      // if old x is between x1,x2 check and deal
    
-     if (dude.coords.x  + dude.width > tile.coords.x && dude.coords.x < tile.coords.x + tile.width) {
-       if (new_coords.y + dude.height > tile.coords.y && new_coords.y < tile_top){
+     if (dude.coords.x  + dude.width > tile.coords.x + epsilon && dude.coords.x < tile.coords.x + tile.width - epsilon) {
+       if (new_coords.y + dude.height > tile.coords.y + epsilon && new_coords.y < tile_top - epsilon){
           
           dude.velocity.y=0
           
@@ -139,7 +140,7 @@ function move_screen(){
       dude.velocity.x=0;
     }
     
-    if (new_coords.y+dude.height > map.height || new_coords.y < 0) {
+    if (new_coords.y+dude.height > map.height || new_coords.y < map.ground) {
       coords.y = dude.coords.y;
       dude.velocity.y=0;
     }
@@ -150,26 +151,29 @@ function move_screen(){
     ctx.clearRect(0,0,screen.width,screen.height);
   }
   function draw_bg(ctx) {
+   gnd = screen_coords({x:0,y:map.ground});
    for(var i=1;i<10;i++)
    {
      ctx.fillStyle = "rgb(200,0,0)";
-     ctx.fillRect (100*i-screen.coords.x, 10, 55, 50);
+     ctx.fillRect (100*i-screen.coords.x, gnd.y-190, 55, 50);
    }
+   
+    
     ctx.fillStyle = "rgb(0,200,0)";
-    ctx.fillRect (0, map.ground, map.width,map.height/2 );
+    ctx.fillRect (0, gnd.y, map.width,gnd.y );
   }
 
   function draw_dude(ctx){
    ctx.fillStyle = "rgba(0, 0, 200, 0.5)";
    coords = screen_coords(dude.coords)
-   ctx.fillRect (coords.x, coords.y, dude.width, dude.height);
+   ctx.fillRect (coords.x, coords.y-dude.height, dude.width, dude.height);
   }
 
   function draw_tiles(ctx){
     map.tiles.each(function(tile){
       ctx.fillStyle = 'rgb(200,40,240);'
       coords = screen_coords(tile.coords)
-      ctx.fillRect(coords.x,coords.y,tile.width,tile.height)
+      ctx.fillRect(coords.x,coords.y-tile.height,tile.width,tile.height)
     })
   }
 
@@ -245,7 +249,7 @@ Event.observe(window,"keydown",function(e){
       break;
   }
   dude.movement[dir]=true;
-  
+  if(dir!="other")e.stop()
   $('key_press_'+dir).addClassName("pressed");
   $('screen_coords').update("x: "+screen.coords.x+"y: "+screen.coords.y);
 })
@@ -253,7 +257,9 @@ Event.observe(window,"keydown",function(e){
   
   var dude_debug = function(){
     $('dude_coords').update("x: "+dude.coords.x+"<br>y:"+dude.coords.y)
-    setTimeout("Grillage.dude_debug()", 10);
+    if (dude.jumping) $('dude_jump').addClassName("pressed")
+    else $('dude_jump').removeClassName("pressed")
+    setTimeout("Grillage.dude_debug()", 200);
   };
   
   set_debug = function(){

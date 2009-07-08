@@ -16,11 +16,7 @@ var map = {
   //where the dude first appears
   start_coords:{
     x:100,
-    y:50
-  },
-  screen_coords: {
-  x:0,
-  y:0
+    y:200
   },
   width: 1000,
   height:500,

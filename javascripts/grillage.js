@@ -244,6 +244,9 @@ Event.observe(window,"keydown",function(e){
     set_debug()
     set_listeners()
     set_screen()
+    
+    dude.coords = Object.clone(map.start_coords)
+    
     this.draw();
     mainLoop();
   },

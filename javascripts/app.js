@@ -13,6 +13,11 @@ Event.observe(window,"load",function(){
 
 
 var map = {
+  //where the dude first appears
+  start_coords:{
+    x:100,
+    y:50
+  },
   screen_coords: {
   x:0,
   y:0

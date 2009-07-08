@@ -15,8 +15,6 @@ Grillage =
   var mainLoop = function(){
     move_dude();
     var dir = null
-
-
     Grillage.draw();
     setTimeout("Grillage.mainLoop()", 10);
   };
@@ -140,11 +138,11 @@ var dude = {
   function draw_bg(ctx) {
    for(var i=1;i<10;i++)
    {
-   ctx.fillStyle = "rgb(200,0,0)";
-   ctx.fillRect (100*i-map.screen_coords.x, 10, 55, 50);
+     ctx.fillStyle = "rgb(200,0,0)";
+     ctx.fillRect (100*i-map.screen_coords.x, 10, 55, 50);
    }
     ctx.fillStyle = "rgb(0,200,0)";
-    ctx.fillRect (0, map.height/2 +10, map.width,map.height/2 );
+    ctx.fillRect (0, map.ground, map.width,map.height/2 );
   }
 
   function draw_dude(ctx){

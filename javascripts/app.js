@@ -18,8 +18,8 @@ var map = {
   y:0
   },
   width: 1000,
-  height:300,
-  ground:100,
+  height:500,
+  ground:200,
   tiles: [
     {
       type:'hard',

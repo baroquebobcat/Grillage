@@ -22,10 +22,18 @@ Grillage =
 (function() {
 
 var epsilon = 1;
-var delta = 10;
+var delta = 0;
 var tic = 50;
-    
+var gravity = -200;//px/s/s
+var movement_speed = 100; //px/s
+var jump_speed = 200;//px/s
+var time = new Date().getTime();
+var old_time = new Date().getTime();
+
   var mainLoop = function(){
+    old_time = time;
+    time = new Date().getTime();
+    delta = (time-old_time)/1000.0;//sec
     move_dude();
     move_screen();
     var dir = null
@@ -43,8 +51,8 @@ var screen_coords = function(coords){
 function move_dude(){
   //movement
   
-    if(dude.movement.left) dude.velocity.x = -1
-    if(dude.movement.right) dude.velocity.x = 1
+    if(dude.movement.left)  dude.velocity.x = -1 * movement_speed;
+    if(dude.movement.right) dude.velocity.x =  1 * movement_speed;
     if(!dude.movement.left && !dude.movement.right) dude.velocity.x = 0;
     
     //left right
@@ -53,10 +61,10 @@ function move_dude(){
     new_coords.y = dude.coords.y;
     
     if (dude.movement.up && !dude.falling) {
-      dude.velocity.y = 1;
+      dude.velocity.y = jump_speed;
       dude.falling = true;
     }
-    if (dude.falling) dude.velocity.y -= 0.03;
+    if (dude.falling) dude.velocity.y += gravity*delta;
      
     new_coords.y = dude.coords.y + dude.velocity.y*delta;
     dude.coords = collision_adjustment(dude,new_coords)   
@@ -66,15 +74,11 @@ function move_dude(){
 function move_screen(){
   //scroll screen position -- leave a half a dude of space
   var coords = screen_coords(dude.coords)
-  if (coords.x > screen.width - 1.5 * dude.width)
-   screen.coords.x +=  delta;
-  if ( coords.x < 0.5 * dude.width)
-  screen.coords.x -=  delta;
+  if (coords.x > screen.width - 1.5 * dude.width || coords.x < 0.5 * dude.width)
+   screen.coords.x +=  dude.velocity.x*delta;
 
-  if (coords.y > screen.height - 0.5 * dude.height)
-   screen.coords.y -=  delta;
-  if ( coords.y < 0 + dude.height)
-    screen.coords.y +=  delta;
+  if (coords.y > screen.height - 0.5 * dude.height || coords.y < 0 + dude.height)
+   screen.coords.y +=  dude.velocity.y*delta;
 }
 
   var dude = {
@@ -99,7 +103,7 @@ function move_screen(){
   }
 
 
-  function collision_adjustment(dude,new_coords){
+  function collision_adjustment(dude,new_coords){1 * movement_speed;
    
     
     var top = new_coords.y + dude.height;
@@ -154,6 +158,7 @@ function move_screen(){
     
     if (new_coords.y+dude.height > map.height) {
       coords.y = map.height - dude.height;
+      dude.velocity.y=0
     }
     if (new_coords.y < map.ground) {
       coords.y = map.ground;
@@ -236,6 +241,7 @@ Event.observe(window,"keyup",function(e){
     dir = 'other';
     break;
   }
+  if( dir != "other") e.stop()
   dude.movement[dir]=false
   $('key_press_'+dir).removeClassName("pressed");
 })

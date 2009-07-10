@@ -48,7 +48,7 @@ var map = {
     },
         {
       type:'hard',
-      coords: {x:325,y:300},
+      coords: {x:330,y:310},
       width: 100,
       height:50
     }

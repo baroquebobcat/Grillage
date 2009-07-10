@@ -20,6 +20,10 @@ NOTES
 */
 Grillage = 
 (function() {
+
+var epsilon = 1;
+var delta = 10;
+var tic = 50;
     
   var mainLoop = function(){
     move_dude();
@@ -35,9 +39,7 @@ var screen_coords = function(coords){
     y: screen.height - (coords.y -screen.coords.y)
   };
 }
-var epsilon = 1;
-var delta = 5;
-var tic = 20;
+
 function move_dude(){
   //movement
   
@@ -50,14 +52,11 @@ function move_dude(){
     new_coords.x = dude.coords.x + dude.velocity.x*delta;
     new_coords.y = dude.coords.y;
     
-    //this is a stupid check
-    if (dude.velocity.y == 0) dude.jumping = false 
-    
-    if (dude.movement.up && !dude.jumping) {
+    if (dude.movement.up && !dude.falling) {
       dude.velocity.y = 1;
-      dude.jumping = true;
+      dude.falling = true;
     }
-    dude.velocity.y -= 0.03;
+    if (dude.falling) dude.velocity.y -= 0.03;
      
     new_coords.y = dude.coords.y + dude.velocity.y*delta;
     dude.coords = collision_adjustment(dude,new_coords)   
@@ -74,7 +73,7 @@ function move_screen(){
 
   if (coords.y > screen.height - 0.5 * dude.height)
    screen.coords.y -=  delta;
-  if ( coords.y < 0)
+  if ( coords.y < 0 + dude.height)
     screen.coords.y +=  delta;
 }
 
@@ -87,7 +86,7 @@ function move_screen(){
       x:0,
       y:0
     },
-    jumping:false,
+    falling:false,
     width:55,
     height:50,
     movement: {
@@ -99,40 +98,53 @@ function move_screen(){
     }
   }
 
+
   function collision_adjustment(dude,new_coords){
-    $('blocked_hori').removeClassName('pressed')
-    $('blocked_vert').removeClassName('pressed')
-    var top = new_coords.y + dude.height;
+   
     
+    var top = new_coords.y + dude.height;
+    dude.falling = true;
     var coords = Object.clone(new_coords)
     
     map.tiles.each(function(tile){
       var tile_top = tile.coords.y + tile.height
    //for x
      // if old y is between y1,y2 check and deal
-     if (dude.coords.y + dude.height > tile.coords.y + epsilon && dude.coords.y < tile_top - epsilon) {
+     if (dude.coords.y + dude.height > tile.coords.y + epsilon && dude.coords.y < tile_top - epsilon)
+     {
        if (new_coords.x + dude.width > tile.coords.x &&
-          new_coords.x < tile.coords.x + tile.width){
+           new_coords.x < tile.coords.x + tile.width)
+       {
+          if (dude.coords.x <= tile.coords.x)
+          {
+            coords.x = tile.coords.x - dude.width
+          } else {
+            coords.x = tile.coords.x + tile.width
+          }
           
           dude.velocity.x=0
           
-          coords.x = dude.coords.x;//lazy
+//          coords.x = dude.coords.x;//lazy
           $('blocked_hori').addClassName('pressed')
-       }
+       } else  $('blocked_hori').removeClassName('pressed')
      }
    //for y
      // if old x is between x1,x2 check and deal
    
-     if (dude.coords.x  + dude.width > tile.coords.x + epsilon && dude.coords.x < tile.coords.x + tile.width - epsilon) {
-       if (new_coords.y + dude.height > tile.coords.y + epsilon && new_coords.y < tile_top - epsilon){
+     if (dude.coords.x  + dude.width > tile.coords.x  && dude.coords.x < tile.coords.x + tile.width) {
+       if (new_coords.y + dude.height > tile.coords.y  && new_coords.y < tile_top ){
+          if (dude.coords.y >= new_coords.y)
+          {// dude.coords.y-tile.coords.y-dude.height) {
+            coords.y = tile_top;
+            dude.falling=false;
+          } else {
+            coords.y = tile.coords.y-dude.height;
+          }
           
-          dude.velocity.y=0
-          
-          dude.jumping=false;
-          
-          coords.y = dude.coords.y;//lazy
+          dude.velocity.y=0;
+
           $('blocked_vert').addClassName('pressed')
-       }
+       } else $('blocked_vert').removeClassName('pressed')
      }
     })
     if (new_coords.x+dude.width > map.width || new_coords.x < 0) {
@@ -140,9 +152,13 @@ function move_screen(){
       dude.velocity.x=0;
     }
     
-    if (new_coords.y+dude.height > map.height || new_coords.y < map.ground) {
-      coords.y = dude.coords.y;
+    if (new_coords.y+dude.height > map.height) {
+      coords.y = map.height - dude.height;
+    }
+    if (new_coords.y < map.ground) {
+      coords.y = map.ground;
       dude.velocity.y=0;
+      dude.falling = false;
     }
     return coords;
   }
@@ -230,9 +246,7 @@ Event.observe(window,"keydown",function(e){
   switch(e.keyCode != 0 ? e.keyCode : e.which){
   case Event.KEY_SPACE:
   case Event.KEY_UP:
-    dir = "up"
-    //if(!dude.movement.jumping) jump();
-    
+    dir = "up"   
     break;
   case Event.KEY_DOWN:
     dir = "down"
@@ -257,7 +271,7 @@ Event.observe(window,"keydown",function(e){
   
   var dude_debug = function(){
     $('dude_coords').update("x: "+dude.coords.x+"<br>y:"+dude.coords.y)
-    if (dude.jumping) $('dude_jump').addClassName("pressed")
+    if (dude.falling) $('dude_jump').addClassName("pressed")
     else $('dude_jump').removeClassName("pressed")
     setTimeout("Grillage.dude_debug()", 200);
   };
